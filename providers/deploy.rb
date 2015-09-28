@@ -218,16 +218,16 @@ end
 def extract_artifact!
   recipe_eval do
     case ::File.extname(cached_tar_path)
-    when /(tar|tgz|tar\.gz|tbz2|tbz|tar\.xz)$/
+    when /(tar|tgz|gz|tbz2|tbz|tar\.xz)$/
 
       taropts = [ '-x' ]
-      taropts.push('-z') if cached_tar_path.match(/(tgz|tar\.gz)$/)
+      taropts.push('-z') if cached_tar_path.match(/(tgz|gz)$/)
       taropts.push('-j') if cached_tar_path.match(/(tbz2|tbz)$/)
       taropts.push('-J') if cached_tar_path.match(/tar\.xz$/)
       taropts = taropts.join(' ')
 
       execute "extract_artifact!" do
-        command "tar #{taropts} -f #{cached_tar_path} -C #{release_path}"
+        command "tar --strip-components=1 #{taropts} -f #{cached_tar_path} -C #{release_path}"
         user new_resource.owner unless Chef::Artifact.windows?
         group new_resource.group unless Chef::Artifact.windows?
         retries 2
